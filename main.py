@@ -3,7 +3,7 @@ from dash import Dash, dcc, html, Input, Output, callback_context, ALL, ctx
 import dash_leaflet
 import plotly.graph_objs as go
 import json
-from utils.main import get_weather_data, get_city_coordinates
+from utls.main import get_weather_data, get_city_coordinates
 
 app = Flask(__name__)
 
@@ -15,7 +15,9 @@ cities = []
 @app.route('/', methods=['GET', 'POST'])
 def index():
     global cities
+    print("index")
     if request.method == 'POST':
+        print("post")
         start_point = request.form['start_point']
         end_point = request.form['end_point']
         intermediate_cities = request.form.getlist('intermediate_city')
@@ -119,3 +121,7 @@ def update_graph(selected_metric, days, _):
             )
             return dcc.Graph(figure=fig)
     return html.Div("Выберите город для отображения графика")
+
+
+if __name__ == "__main__":
+    app.run(port=8000)

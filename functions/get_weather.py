@@ -10,7 +10,7 @@ def get_daily_forecast(location_key, api_key):
             "details": "true",
             "metric": "true"}
     #url = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/{location_key}"
-    url = f"http://dataservice.accuweather.com/currentconditions/v1/{location_key}"
+    url = f"http://dataservice.accuweather.com/currentconditions/v1/daily/5day/{location_key}"
 
     try:
         response = requests.get(url, params=params)
@@ -27,7 +27,8 @@ def get_location_key(location, api_key):
         'apikey': api_key,
         'q': location
     }
-    url = f"http://dataservice.accuweather.com/locations/v1/cities/search"
+    # url = f"http://dataservice.accuweather.com/locations/v1/cities/search"
+    url = f'http://dataservice.accuweather.com/locations/v1/cities/search?apikey={api_key}&q={location}'
 
     try:
         response = requests.get(url, params=params)

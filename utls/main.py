@@ -8,9 +8,12 @@ load_dotenv()
 # Получение API_KEY
 API_KEY = os.getenv("API_KEY")
 
-
+def get_forecast(location_str, api_key):
+    location_key = get_location_key(location_str, api_key)
+    response = get_daily_forecast(location_key, api_key)
+    return response
 def get_weather_data(city, days):
-    location_key = get_location_key(city)
+    location_key = get_location_key(city,  API_KEY)
     url = f"http://dataservice.accuweather.com/forecasts/v1/daily/5day/{location_key}?apikey={API_KEY}&metric=true&details=true"
     response = requests.get(url)
 
@@ -76,14 +79,41 @@ def get_city_coordinates(city_name):
     return (latitude, longitude)
 
 
-def get_location_key(city):
-    url = f"http://dataservice.accuweather.com/locations/v1/cities/search?apikey={API_KEY}&q={city}"
-    response = requests.get(url)
-    if response.status_code in (401, 403, 405, 501, 503):
-        return "connection_error"
+def get_daily_forecast(location_key, api_key):
+    params = {
+            "apikey": api_key,
+            "details": "true",
+            "metric": "true"}
+    #url = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/{location_key}"
+    url = f"http://dataservice.accuweather.com/currentconditions/v1/daily/5day/{location_key}"
+
     try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        #daily_forecast = data["DailyForecasts"][0]
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка при получении прогноза погоды: {e}")
+        return None
+
+def get_location_key(location, api_key):
+    params = {
+        'apikey': api_key,
+        'q': location
+    }
+    # url = f"http://dataservice.accuweather.com/locations/v1/cities/search"
+    url = f'http://dataservice.accuweather.com/locations/v1/cities/search?apikey={api_key}&q={location}'
+
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
         data = response.json()
         if data:
             return data[0]["Key"]
-    except:
+        else:
+            print("Город не найден.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка при поиске города: {e}")
         return None
